@@ -14,6 +14,10 @@ if st.button("Submit"):
         if "error" in result:
             st.error(result["error"])
         else:
-            st.json(result)
+            st.subheader("Natural Language Response:")
+            st.write(result["natural_language_response"])
+            
+            st.subheader("Raw MongoDB Query Results:")
+            st.json(result["results"])
     except Exception as e:
         st.error(f"Error in fetching data: {str(e)}")
