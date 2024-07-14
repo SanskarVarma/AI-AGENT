@@ -7,7 +7,6 @@ import json
 
 load_dotenv()
 
-# Initialize MongoDB client
 mongo_client = MongoClient(os.getenv('MONGO_URI'))
 db = mongo_client[os.getenv('MONGO_DB_NAME')]
 
@@ -19,44 +18,36 @@ def handle_query():
         return jsonify({"error": "No query provided"}), 400
 
     try:
-        # Convert the natural language query to a MongoDB query
         mongo_query = convert_to_mongo_query(user_query)
 
-        # Debugging: Print the MongoDB query
         print(f"MongoDB Query: {mongo_query}")
 
-        # Search both collections
         result_mycollection = db.mycollection.find(mongo_query)
-        if isinstance(mongo_query, dict):  # Simple find query
+        if isinstance(mongo_query, dict):  
             result_mycollection = db.mycollection.find(mongo_query)
-        elif isinstance(mongo_query, list):  # Aggregation pipeline
+        elif isinstance(mongo_query, list):  
             result_mycollection = db.mycollection.aggregate(mongo_query)
 
-        if isinstance(mongo_query, dict):  # Simple find query
+        if isinstance(mongo_query, dict):  
             result_menuDetails = db.menuDetails.find(mongo_query)
-        elif isinstance(mongo_query, list):  # Aggregation pipeline
+        elif isinstance(mongo_query, list):  
             result_menuDetails = db.menuDetails.aggregate(mongo_query)
 
-        # Convert the cursor to a list of documents for both collections
         output_mycollection = [doc for doc in result_mycollection]
         output_menuDetails = [doc for doc in result_menuDetails]
 
-        # Convert ObjectId to string for JSON serialization
         for doc in output_mycollection:
             doc['_id'] = str(doc['_id'])
         for doc in output_menuDetails:
             doc['_id'] = str(doc['_id'])
 
-        # Merge results if needed or handle separately
         combined_output = {
             "mycollection_results": output_mycollection,
             "menuDetails_results": output_menuDetails
         }
 
-        # Convert the MongoDB query result to natural language
         natural_language_response = convert_to_natural_language(combined_output)
 
-        # Return the natural language response and the raw MongoDB query results
         response = {
             "query": mongo_query,
             "results": combined_output,
@@ -65,7 +56,6 @@ def handle_query():
 
         return jsonify(response)
     except Exception as e:
-        # Log the error
         print(f"Error processing query: {str(e)}")
         return jsonify({"error": str(e)}), 400
 

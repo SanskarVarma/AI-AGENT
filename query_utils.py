@@ -40,10 +40,8 @@ def convert_to_mongo_query(user_query):
     mongo_query_str = response.choices[0].message['content'].strip()
 
     try:
-        # Parse the JSON string into a dictionary
         mongo_query = json.loads(mongo_query_str)
         if isinstance(mongo_query, list):
-            # Ensure it's a list of dictionaries (aggregation pipeline)
             for stage in mongo_query:
                 if not isinstance(stage, dict):
                     raise ValueError("Invalid MongoDB query format: stages must be dictionaries")
